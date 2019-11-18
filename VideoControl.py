@@ -2,7 +2,7 @@
 import cv2
 
 
-class VideoMaker:
+class VideoControl:
     """Class provides working with video and voice
        Arguments: video_path - path to the video
                   velocity  - encoder rotation rate
