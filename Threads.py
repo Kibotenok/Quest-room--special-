@@ -1,6 +1,6 @@
 import threading
 
-from ArduinoSerial import ArduinoSerial, RCSerial
+from SerialConnect import ArduinoSerial, RCSerial
 from VideoControl import VideoControl
 
 VIDEO_PATH_ONE = ''
@@ -17,8 +17,8 @@ class VideoThread(threading.Thread):
     def __init__(self, path_one, path_two, state_list, k):
 
         threading.Thread.__init__(self)
-        self.video_one = VideoMaker(path_one)  # first video
-        self.video_two = VideoMaker(path_two)  # second video
+        self.video_one = VideoControl(path_one)  # first video
+        self.video_two = VideoControl(path_two)  # second video
         self.state_list = state_list
         self.k = k
 
