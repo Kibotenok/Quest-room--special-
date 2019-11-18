@@ -7,17 +7,17 @@ class VideoMaker:
        Arguments: video_path - path to the video
                   velocity  - encoder rotation rate
                   frame_time - time for playing one frame in ms"""
-    def __init__(self, video_path, velocity=0, frame_time=25):
+    def __init__(self, video_path, rate=0, frame_time=25):
 
         self.video_path = video_path
         self.video = cv2.VideoCapture(self.video_path)
-        self.velocity = velocity
+        self.rate = rate
         self.frame_time = frame_time
 
     def set_speed(self, k):
         """Method to calculate frame time in ms
            Arguments: k - converting coefficient"""
-        self.frame_time = 25-self.velocity*k
+        self.frame_time = 25-self.rate*k
 
     def play(self):
         """Method to play video"""
