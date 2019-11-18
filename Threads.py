@@ -1,7 +1,7 @@
 import threading
 
 from ArduinoSerial import ArduinoSerial, RCSerial
-from VideoMaker import VideoMaker
+from VideoControl import VideoControl
 
 VIDEO_PATH_ONE = ''
 VIDEO_PATH_TWO = ''
