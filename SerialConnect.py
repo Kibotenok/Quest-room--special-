@@ -6,18 +6,14 @@ import time
 
 class ArduinoSerial:
     """Class provides work with arduino serial port
-       Arguments: state - system state
-                  baudrate - connection rate"""
+       Arguments: baudrate - connection rate"""
     
-    def __init__(self, state=1, baudrate=9600):
+    def __init__(self, baudrate=9600):
         
         self.port = self.port_find()  # Arduino port name
-        self.state = state  # System state
         self.baudrate = baudrate
         self.ino_ser = serial.Serial(port=self.port, baudrate=self.baudrate)  # Serial object
         self.init_ser()  # Serial connection init
-        self.in_msg_dict = {"OK": [], "Change": 2}  # Message dictionary from arduino
-        self.out_msg_dict = {1: "Start", 2: "Next", 3: "Stop", 4: "OK", 5: "Timeout"}  # Message dictionary to arduino
 
     def port_find(self):
         """Method to find arduino port name
@@ -66,45 +62,48 @@ class ArduinoSerial:
                 else:
                     continue
 
-    def send_data(self, state):
-        """Method to send data to arduino depending on system state
+    def send_data(self, msg):
+        """Method to send data to arduino
+           Arguments: msg - message to send
            Return nothing"""
-        states = self.out_msg_dict.keys()
-
-        if self.state in states:
-
-            message = self.out_msg_dict[self.state]
-            self.ino_ser.write(message)
-
-        else:
-
-            print("State value error. System go back to begin state\n")
-            self.state = 1
+        self.ino_ser.write(msg)
 
     def get_data(self):
         """Method to get data from arduino
            Return getting data"""
         try:
+            while self.ino_ser.inWaiting() > 0:
 
-            pass
+                data = self.ino_ser.read_until()
+
+                return data
 
         except TimeoutError:
 
             pass
 
-    def change_state(self):
-        """Method to change system state
-           Return state value"""
-        pass
+    def get_response(self):
+
+        msg = self.get_data()
+
+        if msg == 'OK':
+
+            return True
+
+        return False
 
 
 class RCSerial:
-    """"Class provides working with rc serial port"""
-    def __init__(self):
+    """"Class provides working with rc serial port
+        Arguments: baudrate - connection rate"""
+    def __init__(self, baudrate=9600):
 
-        self.port = self.port_find()
-        self.in_msg_dict = {"start": 1, "timeout": 5}
-        self.out_msg_dict = {1: "finish one", 2: "finish two"}
+        self.port = self.port_find()  # Rc port name
+        self.own_address = self.find_address()  # Raspberry Pi address
+        self.baudrate = baudrate
+        self.complete_quest = 0  # complete quest count
+        self.rc_ser = serial.Serial(port=self.port, baudrate=self.baudrate)  # Serial object
+        self.init_ser()  # Serial port init
 
     def port_find(self):
         """Method to find rc port name
@@ -122,7 +121,13 @@ class RCSerial:
 
         except NameError:
 
-            print("No connection betweeen main controller and raspberry\n")
+            print("No connection between main controller and raspberry\n")
+
+    def find_address(self):
+        """Method to find raspberry pi address
+           Return device address"""
+        address = ''
+        return address
 
     def init_ser(self):
         """Method to init serial connection
@@ -131,10 +136,10 @@ class RCSerial:
 
         while True:
             try:
-                if self.ino_ser.isOpen():
-                    self.ino_ser.close()
+                if self.rc_ser.isOpen():
+                    self.rc_ser.close()
 
-                self.ino_ser.open()
+                self.rc_ser.open()
                 time.sleep(3)
                 print("Serial port is availble. Connection is ready\n")
                 break
@@ -152,33 +157,21 @@ class RCSerial:
                 else:
                     continue
 
-    def send_data(self):
-        """Method to send data to arduino depending on system state
+    def send_data(self, message):
+        """Method to send data to controller depending on system state
            Return nothing"""
-        states = self.out_msg_dict.keys()
-
-        if self.state in states:
-
-            message = self.out_msg_dict[self.state]
-            self.ino_ser.write(message)
-
-        else:
-
-            print("State value error. System go back to begin state\n")
-            self.state = 1
+        self.complete_quest += 1
+        self.rc_ser.write(message+str(self.complete_quest)+'\n')
 
     def get_data(self):
-        """Method to get data from arduino
+        """Method to get data from rc controller
            Return getting data"""
         try:
+            while self.rc_ser.inWaiting() > 0:
+                data = self.rc_ser.read_until()
 
-            pass
+                return data
 
         except TimeoutError:
 
             pass
-
-    def change_state(self):
-        """Method to change system state
-           Return state value"""
-        pass
